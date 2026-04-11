@@ -341,27 +341,10 @@ Yes. Set `OCR_GPU = False` in config and remove `device=0` from training command
 
 ---
 
-## 👥 Team
-
-| Name | Role |
-|------|------|
-| **Aryan** | Pipeline architecture, model integration, OCR, full codebase |
-| *Teammate 2* | *Add contribution* |
-| *Teammate 3* | *Add contribution* |
-
----
-
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.
-
----
 
 ## 🙏 Acknowledgements
 
 - [Ultralytics](https://ultralytics.com/) for YOLOv8
-- [Pratham Jaiswal](https://github.com/prathamjaiswal) — original Two Wheeler Lane Detection dataset concept
-- **Arnav Rawat** and **Shubham Sharma** — dataset co-contributors
 - [Roboflow](https://roboflow.com/) for dataset hosting and annotation
 
 ---
