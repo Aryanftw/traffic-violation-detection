@@ -1,0 +1,46 @@
+# enhanced_face.yaml
+# ===================
+# Enhanced YOLOv8-nano for face detection.
+#
+# Same three modifications as the helmet model:
+#   1. C2f_FasterNet  — PConv-based backbone blocks
+#   2. ADown          — detail-preserving downsampling
+#   3. LSCD_Detect    — shared-weight head with GroupNorm
+#
+# Faces on motorcycles are small, partially occluded, and at varying angles —
+# exactly the conditions where ADown + C2f_FasterNet help most.
+
+nc: 1          # ← face only; change if your dataset has more classes
+scales:
+  n: [0.33, 0.25, 1024]
+
+backbone:
+  - [-1, 1, Conv,          [64, 3, 2]]          # 0 - P1/2    320×320×64
+  - [-1, 1, Conv,          [128, 3, 2]]         # 1 - P2/4    160×160×128
+  - [-1, 3, C2f_FasterNet, [128, True]]         # 2           160×160×128
+  - [-1, 1, ADown,         [256]]               # 3 - P3/8    80×80×256
+  - [-1, 6, C2f_FasterNet, [256, True]]         # 4           80×80×256
+  - [-1, 1, ADown,         [512]]               # 5 - P4/16   40×40×512
+  - [-1, 6, C2f_FasterNet, [512, True]]         # 6           40×40×512
+  - [-1, 1, ADown,         [1024]]              # 7 - P5/32   20×20×1024
+  - [-1, 3, C2f_FasterNet, [1024, True]]        # 8           20×20×1024
+  - [-1, 1, SPPF,          [1024, 5]]           # 9           20×20×1024
+
+head:
+  - [-1,  1, nn.Upsample,    [None, 2, 'nearest']]   # 10
+  - [[-1, 6], 1, Concat,     [1]]                    # 11
+  - [-1,  3, C2f_FasterNet,  [512]]                  # 12
+
+  - [-1,  1, nn.Upsample,    [None, 2, 'nearest']]   # 13
+  - [[-1, 4], 1, Concat,     [1]]                    # 14
+  - [-1,  3, C2f_FasterNet,  [256]]                  # 15  ← P3
+
+  - [-1,  1, ADown,          [256]]                  # 16
+  - [[-1, 12], 1, Concat,    [1]]                    # 17
+  - [-1,  3, C2f_FasterNet,  [512]]                  # 18  ← P4
+
+  - [-1,  1, ADown,          [512]]                  # 19
+  - [[-1, 9], 1, Concat,     [1]]                    # 20
+  - [-1,  3, C2f_FasterNet,  [1024]]                 # 21  ← P5
+
+  - [[15, 18, 21], 1, LSCD_Detect, [nc]]             # 22
